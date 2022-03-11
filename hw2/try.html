@@ -1,0 +1,33 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+</head>
+
+<body>
+    <div id="div"
+        style="width: 100px;height: 100px;position: absolute;left: 100px;top: 100px;border: 1px solid red;background-color: red;">
+    </div>
+    <script type="text/javascript">
+        var div = document.getElementById('div');
+        document.οnkeydοwn = function (e) {
+            switch (e.keyCode) {
+                case 65:
+                    div.style.left = parseInt(div.style.left) - 10 + "px";
+                    break;
+                case 68:
+                    div.style.left = parseInt(div.style.left) + 10 + "px";
+                    break;
+                case 83:
+                    div.style.top = parseInt(div.style.top) + 10 + "px";
+                    break;
+                case 87:
+                    div.style.top = parseInt(div.style.top) - 10 + "px";
+                    break;
+            }
+        }
+    </script>
+</body>
+
+</html>

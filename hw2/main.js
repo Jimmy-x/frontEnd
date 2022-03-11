@@ -1,14 +1,21 @@
+let totalScore = 0;        //当前总得分
+let numOfTrophy = 10;   //地图中初始奖杯的数量
+const sizeOfMap = [9, 8]; //地图大小 [行数,列数]
+const scoreOfTrophy = 10; //每个奖杯的得分
+let currentPlace = [0, 0];  //玩家当前的位置
+let flag = new Array(sizeOfMap[0]);  //用于标记地图中每个位置是什么
+for (let index = 0; index < flag.length; index++) {
+    flag[index] = new Array(sizeOfMap[1]).fill(0);
+}
+
 
 // 设定每个位置是否为奖杯 null表示空 1表示奖杯 2表示玩家
-const initCell = (sizeOfMap, numOfTrophy) => {
-    let flag = new Array(sizeOfMap[0]);
-    for (let index = 0; index < flag.length; index++) {
-        flag[index]=new Array(sizeOfMap[1]).fill(0);
-    }
+const initCell = () => {
     //设定玩家位置
     let trophyRow = Math.floor(Math.random() * sizeOfMap[0]);
     let trophyCol = Math.floor(Math.random() * sizeOfMap[1]);
     flag[trophyRow][trophyCol] = 2;
+    currentPlace = [trophyRow, trophyCol];
     //设定奖杯位置
     while (numOfTrophy > 0) {
         trophyRow = Math.floor(Math.random() * sizeOfMap[0]);
@@ -18,45 +25,100 @@ const initCell = (sizeOfMap, numOfTrophy) => {
             numOfTrophy--;
         }
     }
-    return flag;
 }
 
-
-// 初始化地图 (地图大小, 奖杯数量, 每个奖杯的分数)
-const initMap = (sizeOfMap, numOfTrophy) => {
-    const flag = initCell(sizeOfMap, numOfTrophy);
-    let myMap = document.getElementById("map");
+// 绘制地图
+const drawCanvas = () => {
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    //描绘背景
+    var gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    //createLinearGradient() 方法创建线性的渐变对象。
+    gradient.addColorStop(0, "#e0e0e0");
+    gradient.addColorStop(1, "#ffffff");
+    ctx.fillStyle = gradient;
+    ctx.fillRect = (0, 0, canvas.width, canvas.height);
+    //描绘边框
+    var grid_cols = sizeOfMap[1];
+    var grid_rows = sizeOfMap[0];
+    var cell_height = canvas.height / grid_rows;
+    var cell_width = canvas.width / grid_cols;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#a0a0a0";
+    //结束边框描绘
+    ctx.beginPath();
+    //准备画横线
+    for (var col = 0; col <= grid_cols; col++) {
+        var x = col * cell_width;
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+    }
+    //准备画竖线
+    for (var row = 0; row <= grid_rows; row++) {
+        var y = row * cell_height;
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+    }
+    //绘制机器人和奖杯
+    const img1 = document.getElementById("img1");
+    const img2 = document.getElementById("img2");
     for (let i = 0; i < sizeOfMap[0]; i++) {
-        let rowElement = document.createElement("div");
-        rowElement.className = "row";
-        for (let j = 0; j < sizeOfMap[1]; j++) {
-            const mapBox = document.createElement("div");
-            mapBox.className = "mapBax";
-            switch (flag[i][j]) {
-                case 0:
-                    mapBox.innerHTML = '<img src="image/prize.svg">';
-                    break;
+        for (let j = 0; j <= sizeOfMap[1]; j++) {
+            switch (flag[j][i]) {
                 case 1:
-                    mapBox.innerHTML = '<img src="image/prize.svg">';
+                    //相对位置X轴、Y轴、图片宽、图片高, "-4使得图片适当变小", "+2"为了使得图片居中
+                    ctx.drawImage(img1, i * cell_width + 2, j * cell_height + 2, cell_width - 4, cell_height - 4);
                     break;
                 case 2:
-                    mapBox.innerHTML = '<img src="image/robot.svg">';
+                    ctx.drawImage(img2, i * cell_width + 2, j * cell_height + 2, cell_width - 4, cell_height - 4);
                     break;
                 default:
                     break;
             }
-            rowElement.appendChild(mapBox);
         }
-        myMap.appendChild(rowElement);
+    }
+    //完成描绘
+    ctx.stroke();
+}
+
+// 获取键盘输入
+
+const getKey = () => {
+    var turn = ""
+    //    按键事件
+    document.onkeydown = function (evt) {
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+        var grid_cols = sizeOfMap[1];
+        var grid_rows = sizeOfMap[0];
+        var cell_height = canvas.height / grid_rows;
+        var cell_width = canvas.width / grid_cols;
+        //        获取按键
+        var e = evt || event;
+        var keyCode = e.keyCode || e.which;
+        switch (keyCode) {
+            case 37: turn = "左";
+                if (currentPlace[1] > 0) {
+                    ctx.clearRect(currentPlace[1] * cell_width + 2, currentPlace[0] * cell_height + 2, cell_width - 4, cell_height - 4);
+                    currentPlace[1]--;
+                }
+
+                break;
+            case 38: turn = "上"; break;
+            case 39: turn = "右"; break;
+            case 40: turn = "下"; break;
+        }
+        ctx.drawImage(img2, currentPlace[1] * cell_width + 2, currentPlace[0] * cell_height + 2, cell_width - 4, cell_height - 4);
+        //        渲染
+        document.getElementById("direction").value = turn;
     }
 }
 
+
 const main = () => {
-    let totalScore = 0;
-    const sizeOfMap = [8, 8];
-    const numOfTrophy = 10;
-    const scoreOfTrophy = 10;
-    initMap(sizeOfMap, numOfTrophy);
+    initCell();
+    drawCanvas();
+    getKey();
 }
 
 main();

@@ -7,9 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pecman?</title>
     <style>
-        #map {
+        #canvas {
             display: flex;
             padding-left: 420px;
+            align-content: center;
         }
 
         .row {
@@ -32,7 +33,13 @@
 </head>
 
 <body>
-    <div id="map"></div>
+    <canvas id="canvas" width="700" height="700"></canvas>
+    <img src="image/prize.svg" id="img1" style="display:none;" />
+    <img src="image/robot.svg" id="img2" style="display:none;" />
+    <div>
+        当前输入：<input type="text" id="direction" value="">
+    </div>
 </body>
 <script type="text/javascript" src="main.js"></script>
+
 </html>
