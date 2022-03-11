@@ -31,6 +31,7 @@ const initCell = () => {
 const drawCanvas = () => {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     //描绘背景
     var gradient = ctx.createLinearGradient(0, 0, 0, 300);
     //createLinearGradient() 方法创建线性的渐变对象。
@@ -87,29 +88,55 @@ const getKey = () => {
     var turn = ""
     //    按键事件
     document.onkeydown = function (evt) {
-        var canvas = document.getElementById("canvas");
-        var ctx = canvas.getContext("2d");
-        var grid_cols = sizeOfMap[1];
-        var grid_rows = sizeOfMap[0];
-        var cell_height = canvas.height / grid_rows;
-        var cell_width = canvas.width / grid_cols;
-        //        获取按键
+        // 获取按键
         var e = evt || event;
         var keyCode = e.keyCode || e.which;
         switch (keyCode) {
             case 37: turn = "左";
                 if (currentPlace[1] > 0) {
-                    ctx.clearRect(currentPlace[1] * cell_width + 2, currentPlace[0] * cell_height + 2, cell_width - 4, cell_height - 4);
+                    flag[currentPlace[0]][currentPlace[1]] = 0;
                     currentPlace[1]--;
+                    if (flag[currentPlace[0]][currentPlace[1]]==1) {
+                        totalScore+=scoreOfTrophy;
+                    }
+                    flag[currentPlace[0]][currentPlace[1]] = 2;
                 }
-
                 break;
-            case 38: turn = "上"; break;
-            case 39: turn = "右"; break;
-            case 40: turn = "下"; break;
+            case 38: turn = "上";
+                if (currentPlace[0] > 0) {
+                    flag[currentPlace[0]][currentPlace[1]] = 0;
+                    currentPlace[0]--;
+                    if (flag[currentPlace[0]][currentPlace[1]]==1) {
+                        totalScore+=scoreOfTrophy;
+                    }
+                    flag[currentPlace[0]][currentPlace[1]] = 2;
+                }
+                break;
+            case 39: turn = "右";
+                if (currentPlace[1] < sizeOfMap[1]) {
+                    flag[currentPlace[0]][currentPlace[1]] = 0;
+                    currentPlace[1]++;
+                    if (flag[currentPlace[0]][currentPlace[1]]==1) {
+                        totalScore+=scoreOfTrophy;
+                    }
+                    flag[currentPlace[0]][currentPlace[1]] = 2;
+                }
+                break;
+
+            case 40: turn = "下";
+                if (currentPlace[0] < sizeOfMap[0]) {
+                    flag[currentPlace[0]][currentPlace[1]] = 0;
+                    currentPlace[0]++;
+                    if (flag[currentPlace[0]][currentPlace[1]]==1) {
+                        totalScore+=scoreOfTrophy;
+                    }
+                    flag[currentPlace[0]][currentPlace[1]] = 2;
+                }
+                break;
         }
-        ctx.drawImage(img2, currentPlace[1] * cell_width + 2, currentPlace[0] * cell_height + 2, cell_width - 4, cell_height - 4);
-        //        渲染
+        drawCanvas();
+        document.getElementById("score").value = totalScore;
+        // 渲染
         document.getElementById("direction").value = turn;
     }
 }
