@@ -92,7 +92,7 @@ const getKey = () => {
         var e = evt || event;
         var keyCode = e.keyCode || e.which;
         switch (keyCode) {
-            case 37: turn = "左";
+            case 37:case 65: turn = "左";
                 if (currentPlace[1] > 0) {
                     flag[currentPlace[0]][currentPlace[1]] = 0;
                     currentPlace[1]--;
@@ -102,7 +102,7 @@ const getKey = () => {
                     flag[currentPlace[0]][currentPlace[1]] = 2;
                 }
                 break;
-            case 38: turn = "上";
+            case 38:case 87:  turn = "上";
                 if (currentPlace[0] > 0) {
                     flag[currentPlace[0]][currentPlace[1]] = 0;
                     currentPlace[0]--;
@@ -112,8 +112,8 @@ const getKey = () => {
                     flag[currentPlace[0]][currentPlace[1]] = 2;
                 }
                 break;
-            case 39: turn = "右";
-                if (currentPlace[1] < sizeOfMap[1]) {
+            case 39:case 68: turn = "右";
+                if (currentPlace[1] < sizeOfMap[1]-1) {
                     flag[currentPlace[0]][currentPlace[1]] = 0;
                     currentPlace[1]++;
                     if (flag[currentPlace[0]][currentPlace[1]]==1) {
@@ -123,8 +123,8 @@ const getKey = () => {
                 }
                 break;
 
-            case 40: turn = "下";
-                if (currentPlace[0] < sizeOfMap[0]) {
+            case 40: case 83:turn = "下";
+                if (currentPlace[0] < sizeOfMap[0]-1) {
                     flag[currentPlace[0]][currentPlace[1]] = 0;
                     currentPlace[0]++;
                     if (flag[currentPlace[0]][currentPlace[1]]==1) {
