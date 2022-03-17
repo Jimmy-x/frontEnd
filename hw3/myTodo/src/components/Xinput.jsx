@@ -1,4 +1,4 @@
-export function Xinput(params) {
-  const children = params;
-  return <input>{children}</input>;
+export function Xinput(prop) {
+  const { color } = prop;
+  return <input></input>;
 }
