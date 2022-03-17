@@ -1,5 +1,5 @@
 {
-  "name": "myReact",
+  "name": "myTodo",
   "version": "0.1.0",
   "scripts": {
     "reset": "del-cli node_modules",
@@ -38,7 +38,6 @@
   ],
   "dependencies": {
     "@modern-js/runtime": "^1.0.0",
-    "pnpm": "^6.32.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },
