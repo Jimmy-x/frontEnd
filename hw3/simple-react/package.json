@@ -1,5 +1,5 @@
 {
-  "name": "myTodo",
+  "name": "simple-react",
   "version": "0.1.0",
   "scripts": {
     "reset": "del-cli node_modules",
@@ -37,14 +37,14 @@
     "dist/"
   ],
   "dependencies": {
-    "@emotion/react": "^11.8.2",
+    "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@modern-js/runtime": "^1.0.0",
-    "@mui/material": "^5.5.1",
-    "@mui/styled-engine-sc": "^5.4.2",
+    "@mui/material": "^5.6.0",
+    "@mui/styled-engine-sc": "^5.5.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "styled-components": "^5.3.3"
+    "styled-components": "^5.3.5"
   },
   "devDependencies": {
     "@modern-js/app-tools": "^1.0.0",
