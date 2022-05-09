@@ -1,151 +1,246 @@
-let totalScore = 0;        //当前总得分
-let numOfTrophy = 10;   //地图中初始奖杯的数量
-const sizeOfMap = [9, 8]; //地图大小 [行数,列数]
-const scoreOfTrophy = 10; //每个奖杯的得分
-let currentPlace = [0, 0];  //玩家当前的位置
-let flag = new Array(sizeOfMap[0]);  //用于标记地图中每个位置是什么
-for (let index = 0; index < flag.length; index++) {
-    flag[index] = new Array(sizeOfMap[1]).fill(0);
-}
+// 0表示红方走 未选中
+// 1表示红方选中
+// 2表示黑方走 未选中
+// 3表示黑方选中
 
+var ju = document.getElementById("ju");
+var ma = document.getElementById("ma");
+var xiang = document.getElementById("xiang");
+var shi = document.getElementById("shi");
+var jiang = document.getElementById("jiang");
+var bing = document.getElementById("bing");
+var pao = document.getElementById("pao");
 
-// 设定每个位置是否为奖杯 null表示空 1表示奖杯 2表示玩家
-const initCell = () => {
-    //设定玩家位置
-    let trophyRow = Math.floor(Math.random() * sizeOfMap[0]);
-    let trophyCol = Math.floor(Math.random() * sizeOfMap[1]);
-    flag[trophyRow][trophyCol] = 2;
-    currentPlace = [trophyRow, trophyCol];
-    //设定奖杯位置
-    while (numOfTrophy > 0) {
-        trophyRow = Math.floor(Math.random() * sizeOfMap[0]);
-        trophyCol = Math.floor(Math.random() * sizeOfMap[1]);
-        if (flag[trophyRow][trophyCol] == 0) {
-            flag[trophyRow][trophyCol] = 1;
-            numOfTrophy--;
+var r_ju = document.getElementById("r_ju");
+var r_ma = document.getElementById("r_ma");
+var r_xiang = document.getElementById("r_xiang");
+var r_shi = document.getElementById("r_shi");
+var r_jiang = document.getElementById("r_jiang");
+var r_bing = document.getElementById("r_bing");
+var r_pao = document.getElementById("r_pao");
+    
+
+var states=0;
+var tempChess=0; //用于存储选中的棋子
+var selected=[-1,-1];
+document.body.style.zoom=0.67;
+var a = [];
+// 0表示空 正数表示红方 负数表示黑方
+// 1表示小兵 2表示炮 
+// 3表示车 4表示马 5表示相 6表示士 7表示将
+for (var i = 0; i < 10; i ++) {  //10行
+    var b = [];  //辅助数组
+    for (var j = 0; j < 9; j ++) {  //8列
+        switch(i){
+            case 3: if(j%2==0)b[j]=-1;
+            else b[j] = 0; break;
+            case 6: if(j%2==0)b[j]=1;
+            else b[j] = 0; break;
+            default:b[j] = 0; 
         }
     }
+    a[i] = b;  //把数组b赋值给数组a
 }
+a[2][1]=-2;a[2][7]=-2;
+a[0][0]=-3;a[0][8]=-3;
+a[0][1]=-4;a[0][7]=-4;
+a[0][2]=-5;a[0][6]=-5;
+a[0][3]=-6;a[0][5]=-6;
+a[0][4]=-7;
+a[7][1]=2;a[7][7]=2;
+a[9][0]=3;a[9][8]=3;
+a[9][1]=4;a[9][7]=4;
+a[9][2]=5;a[9][6]=5;
+a[9][3]=6;a[9][5]=6;
+a[9][4]=7;
+console.log(a); 
+var object = {
+    //初始化
+    init: function() {
+        //棋盘外框
+        var canvas1 = document.getElementById("canvas1");
+        this.ctx = canvas1.getContext("2d");
+        this.ctx.lineWidth = 5;
+        this.ctx.strokeStyle = "brown";
+        this.ctx.strokeRect(100, 100, 800, 900);
 
-// 绘制地图
-const drawCanvas = () => {
-    var canvas = document.getElementById("canvas");
-    var ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //描绘背景
-    var gradient = ctx.createLinearGradient(0, 0, 0, 300);
-    //createLinearGradient() 方法创建线性的渐变对象。
-    gradient.addColorStop(0, "#e0e0e0");
-    gradient.addColorStop(1, "#ffffff");
-    ctx.fillStyle = gradient;
-    ctx.fillRect = (0, 0, canvas.width, canvas.height);
-    //描绘边框
-    var grid_cols = sizeOfMap[1];
-    var grid_rows = sizeOfMap[0];
-    var cell_height = canvas.height / grid_rows;
-    var cell_width = canvas.width / grid_cols;
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "#a0a0a0";
-    //结束边框描绘
-    ctx.beginPath();
-    //准备画横线
-    for (var col = 0; col <= grid_cols; col++) {
-        var x = col * cell_width;
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-    }
-    //准备画竖线
-    for (var row = 0; row <= grid_rows; row++) {
-        var y = row * cell_height;
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-    }
-    //绘制机器人和奖杯
-    const img1 = document.getElementById("img1");
-    const img2 = document.getElementById("img2");
-    for (let i = 0; i < sizeOfMap[0]; i++) {
-        for (let j = 0; j <= sizeOfMap[1]; j++) {
-            switch (flag[j][i]) {
-                case 1:
-                    //相对位置X轴、Y轴、图片宽、图片高, "-4使得图片适当变小", "+2"为了使得图片居中
-                    ctx.drawImage(img1, i * cell_width + 2, j * cell_height + 2, cell_width - 4, cell_height - 4);
-                    break;
-                case 2:
-                    ctx.drawImage(img2, i * cell_width + 2, j * cell_height + 2, cell_width - 4, cell_height - 4);
-                    break;
-                default:
-                    break;
+        this.row();
+        this.cols();
+        this.drawFont();
+        //将棋子图像绘制到画布上
+        for (var i = 0; i < 9; i ++) { 
+            for (var j = 0; j < 10; j ++) {
+                if((states==1||states==3)&&j==selected[0]&&i==selected[1]){
+                    object.ctx.globalAlpha = 0.5;
+                }else object.ctx.globalAlpha = 1;
+                switch(a[j][i]){
+                    case -1: object.ctx.drawImage(bing, 50+100*i, 50+100*j, 100, 100);break;
+                    case -2: object.ctx.drawImage(pao, 50+100*i, 50+100*j, 100, 100);break;
+                    case -3: object.ctx.drawImage(ju, 50+100*i, 50+100*j, 100, 100);break;
+                    case -4: object.ctx.drawImage(ma, 50+100*i, 50+100*j, 100, 100);break;
+                    case -5: object.ctx.drawImage(xiang, 50+100*i, 50+100*j, 100, 100);break;
+                    case -6: object.ctx.drawImage(shi, 50+100*i, 50+100*j, 100, 100);break;
+                    case -7: object.ctx.drawImage(jiang, 50+100*i, 50+100*j, 100, 100);break;
+                    case 1: object.ctx.drawImage(r_bing, 50+100*i, 50+100*j, 100, 100);break;
+                    case 2: object.ctx.drawImage(r_pao, 50+100*i, 50+100*j, 100, 100);break;
+                    case 3: object.ctx.drawImage(r_ju, 50+100*i, 50+100*j, 100, 100);break;
+                    case 4: object.ctx.drawImage(r_ma, 50+100*i, 50+100*j, 100, 100);break;
+                    case 5: object.ctx.drawImage(r_xiang, 50+100*i, 50+100*j, 100, 100);break;
+                    case 6: object.ctx.drawImage(r_shi, 50+100*i, 50+100*j, 100, 100);break;
+                    case 7: object.ctx.drawImage(r_jiang, 50+100*i, 50+100*j, 100, 100);break;
+                }
             }
         }
-    }
-    //完成描绘
-    ctx.stroke();
-}
-
-// 获取键盘输入
-
-const getKey = () => {
-    var turn = ""
-    //    按键事件
-    document.onkeydown = function (evt) {
-        // 获取按键
-        var e = evt || event;
-        var keyCode = e.keyCode || e.which;
-        switch (keyCode) {
-            case 37:case 65: turn = "左";
-                if (currentPlace[1] > 0) {
-                    flag[currentPlace[0]][currentPlace[1]] = 0;
-                    currentPlace[1]--;
-                    if (flag[currentPlace[0]][currentPlace[1]]==1) {
-                        totalScore+=scoreOfTrophy;
-                    }
-                    flag[currentPlace[0]][currentPlace[1]] = 2;
-                }
-                break;
-            case 38:case 87:  turn = "上";
-                if (currentPlace[0] > 0) {
-                    flag[currentPlace[0]][currentPlace[1]] = 0;
-                    currentPlace[0]--;
-                    if (flag[currentPlace[0]][currentPlace[1]]==1) {
-                        totalScore+=scoreOfTrophy;
-                    }
-                    flag[currentPlace[0]][currentPlace[1]] = 2;
-                }
-                break;
-            case 39:case 68: turn = "右";
-                if (currentPlace[1] < sizeOfMap[1]-1) {
-                    flag[currentPlace[0]][currentPlace[1]] = 0;
-                    currentPlace[1]++;
-                    if (flag[currentPlace[0]][currentPlace[1]]==1) {
-                        totalScore+=scoreOfTrophy;
-                    }
-                    flag[currentPlace[0]][currentPlace[1]] = 2;
-                }
-                break;
-
-            case 40: case 83:turn = "下";
-                if (currentPlace[0] < sizeOfMap[0]-1) {
-                    flag[currentPlace[0]][currentPlace[1]] = 0;
-                    currentPlace[0]++;
-                    if (flag[currentPlace[0]][currentPlace[1]]==1) {
-                        totalScore+=scoreOfTrophy;
-                    }
-                    flag[currentPlace[0]][currentPlace[1]] = 2;
-                }
-                break;
+    },
+    //此方法用来画棋盘线
+    LineDrawing: function(mx, my, lx, ly) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(mx, my);
+        this.ctx.lineTo(lx, ly);
+        this.ctx.stroke();
+    },
+    //棋盘行
+    row: function() {
+        for(var i = 200; i <= 900; i += 100) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(105, i);
+            this.ctx.lineTo(900, i);
+            this.ctx.stroke();
         }
-        drawCanvas();
-        document.getElementById("score").value = totalScore;
-        // 渲染
-        document.getElementById("direction").value = turn;
+    },
+    //棋盘列
+    cols: function() {
+        for(var i = 200; i <= 800; i += 100) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(i, 105);
+            this.ctx.lineTo(i, 1000);
+            this.ctx.stroke();
+        }
+        //清除指定的矩形区域
+        //this.ctx.clearRect(5, 402,795, 95);
+        this.ctx.clearRect(102.5, 502, 795, 95);
+        //斜线
+        this.LineDrawing(400, 105, 600, 300);
+        this.LineDrawing(400, 805, 600, 1000);
+        //反斜线
+        this.LineDrawing(600, 105, 400, 300);
+        this.LineDrawing(600, 805, 400, 1000);
+    },
+    //坐标的中心点
+    center: function(x, y) {
+        this.ctx.lineWidth = 5;
+        //中心点一（100,200）
+        //左上
+        this.LineDrawing(x - 10, y - 30, x - 10, y - 10);
+        this.LineDrawing(x - 10, y - 10, x - 30, y - 10);
+        //右上
+        this.LineDrawing(x + 10, y - 30, x + 10, y - 10);
+        this.LineDrawing(x + 10, y - 10, x + 30, y - 10);
+        //左下
+        this.LineDrawing(x - 10, y + 30, x - 10, y + 10);
+        this.LineDrawing(x - 10, y + 10, x - 30, y + 10);
+        //右下
+        this.LineDrawing(x + 10, y + 30, x + 10, y + 10);
+        this.LineDrawing(x + 10, y + 10, x + 30, y + 10);
+    },
+    drawFont: function() {
+        this.ctx.lineWidth = 1;
+        var canvas1 = document.getElementById("canvas1");
+        //绘制文字
+        this.ctx.font = "60px microsoft yahei";
+        this.ctx.save(); //保存点
+        //将坐标中心作为起启点
+        this.ctx.translate(canvas1.width / 2, canvas1.height / 2);
+        var radian = Math.PI / 2; // 弧度制 Math.PI=π
+        this.ctx.rotate(radian); // 旋转画布绘制刻度
+        //填充
+        this.ctx.fillText("楚", -30, -270);
+        this.ctx.fillText("河", -30, -150);
+        this.ctx.restore(); //恢复到保存点
+        this.ctx.save();
+        //将坐标中心作为起点
+        this.ctx.translate(canvas1.width / 2, canvas1.height / 2);
+        var radian = Math.PI / -2;
+        this.ctx.rotate(radian);
+        this.ctx.fillText("汉", -30, -270);
+        this.ctx.fillText("界", -30, -150);
+        this.ctx.restore();
     }
-}
+};
+object.init();
 
-
-const main = () => {
-    initCell();
-    drawCanvas();
-    getKey();
-}
-
-main();
+var canvas1 = document.getElementById("canvas1");
+//对事件进行监听
+canvas1.addEventListener('click', function(e){
+    px=e.offsetX;
+    py=e.offsetY;
+    i=Math.trunc((px-33.5)/67) ;
+    j=Math.trunc((py-33.5)/67) ;
+    console.log(i,j);
+    if(states==0){
+        switch(a[j][i]){
+            case 1: 
+            case 2: 
+            case 3: 
+            case 4: 
+            case 5: 
+            case 6: 
+            case 7: 
+            tempChess=a[j][i];
+            selected=[j,i];
+            states++;
+        }
+    }
+    else if(states==1){
+        switch(a[j][i]){
+            case 1: 
+            case 2: 
+            case 3: 
+            case 4: 
+            case 5: 
+            case 6: 
+            case 7: 
+            break;
+            default:
+            a[j][i]=tempChess;
+            a[selected[0]][selected[1]]=0;
+            states++;
+        }
+    }
+    else if(states==2){
+        switch(a[j][i]){
+            case -1: 
+            case -2: 
+            case -3: 
+            case -4: 
+            case -5: 
+            case -6: 
+            case -7: 
+            tempChess=a[j][i];
+            selected=[j,i];
+            states++;
+        }
+    }
+    else if(states==3){
+        switch(a[j][i]){
+            case -1: 
+            case -2: 
+            case -3: 
+            case -4: 
+            case -5: 
+            case -6: 
+            case -7: 
+            break;
+            default:
+            a[j][i]=tempChess;
+            a[selected[0]][selected[1]]=0;
+            states=0;
+        }
+    }
+    var w = canvas1.width;
+    var h = canvas1.height;
+    canvas1.width = w;
+    canvas1.height = h;
+    object.init();
+}, false);
+  
